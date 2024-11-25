@@ -49,17 +49,24 @@ jobs:
       run: |
         echo ${{ fromJSON(needs.discover_projects.outputs.projects_list) }}
 
+    # ---------------------
+    # Scan code using autobuild
+    # ---------------------
     - name: Initialize CodeQL (autobuild)
-      id: autobuild
-      continue-on-error: true
       uses: github/codeql-action/init@v3
       with:
         languages: 'csharp'
         build-mode: 'autobuild'
 
-    - name: Initialize CodeQL (manual build)
-      if: ${{ always() && steps.autobuild.outcome == 'failure' }}
+    - name: Perform CodeQL Analysis (autobuild)
+      id: autobuild
       continue-on-error: true
+      uses: github/codeql-action/analyze@v3
+
+    # ---------------------
+    # Scan code using manualbuild
+    # ---------------------
+    - name: Initialize CodeQL (manualbuild)
       uses: github/codeql-action/init@v3
       with:
         languages: 'csharp'
@@ -67,21 +74,31 @@ jobs:
 
     - name: Build
       id: manualbuild
+      continue-on-error: true
       if: ${{ always() && steps.autobuild.outcome == 'failure' }}
       run: |
         cd ${{ fromJSON(needs.discover_projects.outputs.projects_list) }}
         dotnet build /p:EnableWindowsTargeting=true
 
+    - name: Perform CodeQL Analysis (manualbuild)
+      if: ${{ always() && steps.autobuild.outcome == 'failure' && steps.manualbuild.outcome == 'success' }}
+      continue-on-error: true
+      id: manualbuild2
+      uses: github/codeql-action/analyze@v3
+
+    # ---------------------
+    # Scan code using build none
+    # ---------------------
     - name: Initialize CodeQL (build none)
-      if: ${{ always() && steps.autobuild.outcome == 'failure' && steps.manualbuild.outcome == 'failure' }}
+      if: ${{ always() && steps.autobuild.outcome == 'failure' && (steps.manualbuild.outcome == 'failure' || steps.manualbuild2.outcome == 'failure') }}
       continue-on-error: true
       uses: github/codeql-action/init@v3
       with:
         languages: 'csharp'
-        build-mode: 'nome'
+        build-mode: 'none'
         config: |
           paths:
             - ${{ fromJSON(needs.discover_projects.outputs.projects_list) }}
 
-    - name: Perform CodeQL Analysis
+    - name: Perform CodeQL Analysis (none)
       uses: github/codeql-action/analyze@v3
