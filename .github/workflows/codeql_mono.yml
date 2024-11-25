@@ -1,0 +1,68 @@
+name: FMS CodeQL Analysis
+
+on:
+  workflow_dispatch:
+
+jobs:
+  discover_projects:
+    runs-on: ubuntu-latest
+
+    outputs:
+        projects_list: ${{ steps.matrix_setup.outputs.projects_list }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: List C# Projects
+      id: matrix_setup
+      run: |
+        chmod +x ./_find_projects/find_csharp.sh
+        ./_find_projects/find_csharp.sh
+
+  codeql-analysis:
+    runs-on: ubuntu-latest
+    needs: discover_projects
+
+    steps:
+        - name: List C# Projects
+          run: |
+            echo ${{ fromJSON(needs.discover_projects.outputs.projects_list) }}
+
+#   codeql-analysis:
+#     runs-on: ubuntu-latest
+#     needs: discover_projects
+
+#     strategy:
+#       matrix:
+#         project_path: ${{ fromJSON(needs.discover_projects.outputs.projects_list) }}
+#       max-parallel: 2 # Adjust parallelism limit
+
+#     permissions:
+#       # required for all workflows
+#       actions: read
+#       contents: read
+#       security-events: write
+#       statuses: write
+#       packages: read
+
+#     steps:
+#     - name: Checkout repository
+#       uses: actions/checkout@v4
+
+#     - name: Initialize CodeQL
+#       uses: github/codeql-action/init@v3
+#       with:
+#         languages: 'csharp'
+#         build-mode: 'manual'
+#         # config: |
+#         #   paths:
+#         #     - ${{ matrix.project_path }}
+
+#     - name: Build
+#       run: |
+#         cd ./csharp_examples/${{ matrix.project_path }}
+#         dotnet build /p:EnableWindowsTargeting=true
+
+#     - name: Perform CodeQL Analysis
+#       uses: github/codeql-action/analyze@v3
