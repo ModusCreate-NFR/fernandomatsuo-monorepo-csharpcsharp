@@ -72,16 +72,14 @@ jobs:
         languages: 'csharp'
         build-mode: 'manual'
 
-    - name: Build
+    - name: Build (manualbuild)
       id: manualbuild
       continue-on-error: true
-      if: ${{ always() && steps.autobuild.outcome == 'failure' }}
       run: |
         cd ${{ matrix.project_path }}
         dotnet build /p:EnableWindowsTargeting=true
 
     - name: Perform CodeQL Analysis (manualbuild)
-      if: ${{ always() && steps.autobuild.outcome == 'failure' && steps.manualbuild.outcome == 'success' }}
       continue-on-error: true
       id: manualbuild2
       uses: github/codeql-action/analyze@v3
@@ -90,8 +88,6 @@ jobs:
     # Scan code using build none
     # ---------------------
     - name: Initialize CodeQL (build none)
-      if: ${{ always() && steps.autobuild.outcome == 'failure' && (steps.manualbuild.outcome == 'failure' || steps.manualbuild2.outcome == 'failure') }}
-      continue-on-error: true
       uses: github/codeql-action/init@v3
       with:
         languages: 'csharp'
@@ -101,4 +97,6 @@ jobs:
             - ${{ matrix.project_path }}
 
     - name: Perform CodeQL Analysis (none)
+      continue-on-error: true
+      id: nonebuild
       uses: github/codeql-action/analyze@v3
