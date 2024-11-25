@@ -18,7 +18,7 @@ jobs:
       id: matrix_setup
       run: |
         # Find directories containing .csproj or .sln files
-        projects=$(find . -type f \( -name "*.csproj" -o -name "*.sln" \) -exec dirname {} \; | sort -u | sed 's|^\./||' | grep -v '^.$' | head -5)
+        projects=$(find . -type f \( -name "*.csproj" -o -name "*.sln" \) -exec dirname {} \; | sort -u | sed 's|^\./||' | grep -v '^.$')
         # Convert newlines to JSON array syntax for GitHub Actions matrix
         projects_array=$(echo "$projects" | jq -R . | jq -s . | jq -c .)
         echo "projects_list=$(echo "$projects_array")" >> $GITHUB_OUTPUT
