@@ -27,7 +27,7 @@ jobs:
     steps:
         - name: List C# Projects
           run: |
-            echo ${{ fromJSON(needs.discover_projects.outputs.projects_list) }}
+            echo ${{ needs.discover_projects.outputs.projects_list }}
 
 #   codeql-analysis:
 #     runs-on: ubuntu-latest
