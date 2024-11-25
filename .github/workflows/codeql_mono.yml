@@ -45,19 +45,43 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Initialize CodeQL
+    - name: Show path
+      run: |
+        echo ${{ fromJSON(needs.discover_projects.outputs.projects_list) }}
+
+    - name: Initialize CodeQL (autobuild)
+      id: autobuild
+      continue-on-error: true
+      uses: github/codeql-action/init@v3
+      with:
+        languages: 'csharp'
+        build-mode: 'autobuild'
+
+    - name: Initialize CodeQL (manual build)
+      if: ${{ always() && steps.autobuild.outcome == 'failure' }}
+      continue-on-error: true
       uses: github/codeql-action/init@v3
       with:
         languages: 'csharp'
         build-mode: 'manual'
-        # config: |
-        #   paths:
-        #     - ${{ matrix.project_path }}
 
     - name: Build
+      id: manualbuild
+      if: ${{ always() && steps.autobuild.outcome == 'failure' }}
       run: |
-        cd ${{ matrix.project_path }}
+        cd ${{ fromJSON(needs.discover_projects.outputs.projects_list) }}
         dotnet build /p:EnableWindowsTargeting=true
+
+    - name: Initialize CodeQL (build none)
+      if: ${{ always() && steps.autobuild.outcome == 'failure' && steps.manualbuild.outcome == 'failure' }}
+      continue-on-error: true
+      uses: github/codeql-action/init@v3
+      with:
+        languages: 'csharp'
+        build-mode: 'nome'
+        config: |
+          paths:
+            - ${{ fromJSON(needs.discover_projects.outputs.projects_list) }}
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
