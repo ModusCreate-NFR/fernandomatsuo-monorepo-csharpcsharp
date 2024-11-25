@@ -24,4 +24,5 @@ for dir in "${result_array[@]}"; do
   echo "$dir"
 done
 
+result_array=$(echo "$result_array" | jq -R . | jq -s . | jq -c .)
 echo "projects_list=$(echo "$result_array")" >> $GITHUB_OUTPUT
