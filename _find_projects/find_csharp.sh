@@ -5,7 +5,7 @@ declare -a result_array=()
 
 # Define the base directory (can be replaced with another directory if needed)
 #base_dir="${1:-.}"
-base_dir="/mnt/c/modus_create/GitHub/fernandomatsuo-monorepo-csharpcsharp"
+base_dir=$GITHUB_WORKSPACE
 
 # Find all .csproj files, closest to the root directory
 # Sort and remove duplicates by folder
