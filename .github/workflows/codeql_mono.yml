@@ -31,7 +31,7 @@ jobs:
     strategy:
       matrix:
         project_path: ${{ fromJSON(needs.discover_projects.outputs.projects_list) }}
-      max-parallel: 2 # Adjust parallelism limit
+      max-parallel: 10 # Adjust parallelism limit
 
     permissions:
       # required for all workflows
@@ -57,6 +57,7 @@ jobs:
       with:
         languages: 'csharp'
         build-mode: 'autobuild'
+        debug: true
 
     - name: Perform CodeQL Analysis (autobuild)
       id: autobuild
@@ -71,6 +72,7 @@ jobs:
       with:
         languages: 'csharp'
         build-mode: 'manual'
+        debug: true
 
     - name: Build (manualbuild)
       id: manualbuild
@@ -92,6 +94,7 @@ jobs:
       with:
         languages: 'csharp'
         build-mode: 'none'
+        debug: true
         config: |
           paths:
             - ${{ matrix.project_path }}
