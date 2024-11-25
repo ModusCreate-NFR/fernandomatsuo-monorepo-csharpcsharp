@@ -17,52 +17,47 @@ jobs:
     - name: List C# Projects
       id: matrix_setup
       run: |
-        chmod +x ./_find_projects/find_csharp.sh
-        ./_find_projects/find_csharp.sh
+        # Find directories containing .csproj or .sln files
+        projects=$(find . -type f \( -name "*.csproj" -o -name "*.sln" \) -exec dirname {} \; | sort -u | sed 's|^\./||' | grep -v '^.$' | head -5)
+        # Convert newlines to JSON array syntax for GitHub Actions matrix
+        projects_array=$(echo "$projects" | jq -R . | jq -s . | jq -c .)
+        echo "projects_list=$(echo "$projects_array")" >> $GITHUB_OUTPUT
+        echo $projects_array
 
   codeql-analysis:
     runs-on: ubuntu-latest
     needs: discover_projects
 
+    strategy:
+      matrix:
+        project_path: ${{ fromJSON(needs.discover_projects.outputs.projects_list) }}
+      max-parallel: 2 # Adjust parallelism limit
+
+    permissions:
+      # required for all workflows
+      actions: read
+      contents: read
+      security-events: write
+      statuses: write
+      packages: read
+
     steps:
-        - name: List C# Projects
-          run: |
-            echo ${{ needs.discover_projects.outputs.projects_list }}
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-#   codeql-analysis:
-#     runs-on: ubuntu-latest
-#     needs: discover_projects
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: 'csharp'
+        build-mode: 'manual'
+        # config: |
+        #   paths:
+        #     - ${{ matrix.project_path }}
 
-#     strategy:
-#       matrix:
-#         project_path: ${{ fromJSON(needs.discover_projects.outputs.projects_list) }}
-#       max-parallel: 2 # Adjust parallelism limit
+    - name: Build
+      run: |
+        cd ${{ matrix.project_path }}
+        dotnet build /p:EnableWindowsTargeting=true
 
-#     permissions:
-#       # required for all workflows
-#       actions: read
-#       contents: read
-#       security-events: write
-#       statuses: write
-#       packages: read
-
-#     steps:
-#     - name: Checkout repository
-#       uses: actions/checkout@v4
-
-#     - name: Initialize CodeQL
-#       uses: github/codeql-action/init@v3
-#       with:
-#         languages: 'csharp'
-#         build-mode: 'manual'
-#         # config: |
-#         #   paths:
-#         #     - ${{ matrix.project_path }}
-
-#     - name: Build
-#       run: |
-#         cd ./csharp_examples/${{ matrix.project_path }}
-#         dotnet build /p:EnableWindowsTargeting=true
-
-#     - name: Perform CodeQL Analysis
-#       uses: github/codeql-action/analyze@v3
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
