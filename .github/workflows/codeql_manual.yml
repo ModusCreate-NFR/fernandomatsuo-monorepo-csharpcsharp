@@ -1,0 +1,77 @@
+name: FMS CodeQL Analysis Manual
+
+on:
+  workflow_dispatch:
+
+env:
+  ACTIONS_STEP_DEBUG: true
+
+jobs:
+  discover_projects:
+    runs-on: ubuntu-latest
+
+    outputs:
+        projects_list: ${{ steps.matrix_setup.outputs.projects_list }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: List C# Projects
+      id: matrix_setup
+      run: |
+        # Find directories containing .csproj or .sln files
+        projects=$(find . -type f \( -name "*.csproj" -o -name "*.sln" \) -exec dirname {} \; | sort -u | sed 's|^\./||' | grep -v '^.$')
+        # Convert newlines to JSON array syntax for GitHub Actions matrix
+        projects_array=$(echo "$projects" | jq -R . | jq -s . | jq -c .)
+        echo "projects_list=$(echo "$projects_array")" >> $GITHUB_OUTPUT
+        echo $projects_array
+
+  codeql-analysis:
+    runs-on: ubuntu-latest
+    needs: discover_projects
+
+    strategy:
+      matrix:
+        project_path: ${{ fromJSON(needs.discover_projects.outputs.projects_list) }}
+      max-parallel: 10 # Adjust parallelism limit
+
+    permissions:
+      # required for all workflows
+      actions: read
+      contents: read
+      security-events: write
+      statuses: write
+      packages: read
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Show path
+      run: |
+        echo ${{ matrix.project_path }}
+
+    # ---------------------
+    # Scan code using manualbuild
+    # ---------------------
+    - name: Initialize CodeQL (manualbuild)
+      uses: github/codeql-action/init@v3
+      with:
+        languages: 'csharp'
+        build-mode: 'manual'
+        debug: true
+
+    - name: Build (manualbuild)
+      id: manualbuild
+      continue-on-error: true
+      run: |
+        cd ${{ matrix.project_path }}
+        dotnet build /p:EnableWindowsTargeting=true
+
+    - name: Perform CodeQL Analysis (manualbuild)
+      continue-on-error: true
+      id: manualbuild2
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/path:manualbuild-${{ matrix.project_path }}"
