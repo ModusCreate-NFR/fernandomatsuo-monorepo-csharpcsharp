@@ -3,6 +3,7 @@
 using System;
 using PoCArtifactLogger;
 
+
 namespace LunarDoggo.ConsoleIO
 {
     class Program
@@ -14,12 +15,16 @@ namespace LunarDoggo.ConsoleIO
         /// </summary>
         static void Main(string[] args)
         {
+            //Testing external service output
+            var text = PoCLogger.PoCLog("Artifact PoC");
+            Console.WriteLine(text);
+            
             //Console.WriteLine() writes the provided string to the console-window and sets the cursor to the next line
             Console.WriteLine("Hi, I'm a simple console application written in C# that can prompt the user for input.");
             //Console.WriteLine() without any provided string just adds an empty line to the console output
             Console.WriteLine();
             //Console.Write writes the provided string to the console-window, the cursor will be on the same line
-            Console.WriteLine("Please tell me your name: ");
+            Console.Write("Please tell me your name: ");
 
             /*
              * variables are declared in the format:
@@ -27,12 +32,9 @@ namespace LunarDoggo.ConsoleIO
              * In this case we declare a new string-variable with the name "name" and assign the return value of Console.ReadLine() to it
              * Console.ReadLine() waits for the user to input characters to the console and returns these characters after the Return-key is pressed
              */
+            string name = Console.ReadLine();
 
-            string name = "...";
-            
-            var text = PoCLogger.PoCLog("Modus Create");
-
-            Console.WriteLine(text); 
+            Console.WriteLine();
 
             /*
              * if-statements allow you to execute a portion of your code only when a condition is met. In combination with "else" or "else if" you
