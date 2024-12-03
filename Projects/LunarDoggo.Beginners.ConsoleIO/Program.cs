@@ -1,6 +1,7 @@
 ﻿//You can include namespaces with "using" in order to get access to the classes you need. using-directives always must be before any class declarations in your C#-file
 //The namespace "System" contains many things you could need, in this example we need "Console" from this namespace
 using System;
+using PoCArtifactLogger;
 
 namespace LunarDoggo.ConsoleIO
 {
@@ -18,7 +19,7 @@ namespace LunarDoggo.ConsoleIO
             //Console.WriteLine() without any provided string just adds an empty line to the console output
             Console.WriteLine();
             //Console.Write writes the provided string to the console-window, the cursor will be on the same line
-            Console.Write("Please tell me your name: ");
+            Console.WriteLine("Please tell me your name: ");
 
             /*
              * variables are declared in the format:
@@ -26,9 +27,12 @@ namespace LunarDoggo.ConsoleIO
              * In this case we declare a new string-variable with the name "name" and assign the return value of Console.ReadLine() to it
              * Console.ReadLine() waits for the user to input characters to the console and returns these characters after the Return-key is pressed
              */
-            string name = Console.ReadLine();
 
-            Console.WriteLine();
+            string name = "...";
+            
+            var text = PoCLogger.PoCLog("Modus Create");
+
+            Console.WriteLine(text); 
 
             /*
              * if-statements allow you to execute a portion of your code only when a condition is met. In combination with "else" or "else if" you
