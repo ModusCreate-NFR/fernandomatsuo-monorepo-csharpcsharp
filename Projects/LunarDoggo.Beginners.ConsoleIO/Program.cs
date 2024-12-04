@@ -16,8 +16,35 @@ namespace LunarDoggo.ConsoleIO
         static void Main(string[] args)
         {
             //Testing external service output
-            var text = PoCLogger.PoCLog("Artifact PoC");
-            Console.WriteLine(text);
+            var textOne = PoCLogger.PoCLog("Artifact PoC 1");
+            Console.WriteLine(textOne);
+            
+            var textTwo = PoCLogger.PoCLog("Artifact PoC 2");
+            Console.WriteLine(textTwo);
+            
+            var textThree = PoCLogger.PoCLog("Artifact PoC 3");
+            Console.WriteLine(textThree);
+            
+            var textFour = PoCLogger.PoCLog("Artifact PoC 4");
+            Console.WriteLine(textFour);
+            
+            var textFive = PoCLogger.PoCLog("Artifact PoC 5");
+            Console.WriteLine(textFive);
+            
+            var textSix = PoCLogger.PoCLog("Artifact PoC 6");
+            Console.WriteLine(textSix);
+            
+            var textSeven = PoCLogger.PoCLog("Artifact PoC 7");
+            Console.WriteLine(textSeven);
+            
+            var textEight = PoCLogger.PoCLog("Artifact PoC 8");
+            Console.WriteLine(textEight);
+            
+            var textNine = PoCLogger.PoCLog("Artifact PoC 9");
+            Console.WriteLine(textNine);
+            
+            var textTeen = PoCLogger.PoCLog("Artifact PoC 10");
+            Console.WriteLine(textTeen);
             
             //Console.WriteLine() writes the provided string to the console-window and sets the cursor to the next line
             Console.WriteLine("Hi, I'm a simple console application written in C# that can prompt the user for input.");

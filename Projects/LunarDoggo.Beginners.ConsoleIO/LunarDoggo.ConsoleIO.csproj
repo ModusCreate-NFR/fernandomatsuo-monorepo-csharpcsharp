@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="PoCArtifactLogger" Version="2024.12.3.1330" />
+    <PackageReference Include="PoCArtifactLogger" Version="2024.12.4.1417" />
   </ItemGroup>
 
 </Project>
