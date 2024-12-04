@@ -1,4 +1,4 @@
-name: FMS CodeQL Analysis Manual
+name: FMS CodeQL Analysis
 
 on:
   workflow_dispatch:
@@ -53,6 +53,23 @@ jobs:
         echo ${{ matrix.project_path }}
 
     # ---------------------
+    # Scan code using autobuild
+    # ---------------------
+    - name: Initialize CodeQL (autobuild)
+      uses: github/codeql-action/init@v3
+      with:
+        languages: 'csharp'
+        build-mode: 'autobuild'
+        debug: true
+
+    - name: Perform CodeQL Analysis (autobuild)
+      id: autobuild
+      continue-on-error: true
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/path:autobuild-${{ matrix.project_path }}"
+
+    # ---------------------
     # Scan code using manualbuild
     # ---------------------
     - name: Initialize CodeQL (manualbuild)
@@ -75,3 +92,23 @@ jobs:
       uses: github/codeql-action/analyze@v3
       with:
         category: "/path:manualbuild-${{ matrix.project_path }}"
+
+    # ---------------------
+    # Scan code using build none
+    # ---------------------
+    - name: Initialize CodeQL (build none)
+      uses: github/codeql-action/init@v3
+      with:
+        languages: 'csharp'
+        build-mode: 'none'
+        debug: true
+        config: |
+          paths:
+            - ${{ matrix.project_path }}
+
+    - name: Perform CodeQL Analysis (none)
+      continue-on-error: true
+      id: nonebuild
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/path:none-${{ matrix.project_path }}"
